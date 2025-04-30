@@ -1,14 +1,9 @@
 import { Navigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isSignedIn, isLoaded } = useUser();
+  const token = localStorage.getItem("token");
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isSignedIn) return <Navigate to="/signin" />;
+  if (token === null) return <Navigate to="/signin" />;
   return children;
 }
 

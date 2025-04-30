@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -14,7 +13,8 @@ interface Job {
 }
 
 function Home() {
-  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
+  const isSignedIn = Boolean(localStorage.getItem("token"));
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filters, setFilters] = useState({
     search: "",
@@ -41,9 +41,12 @@ function Home() {
   };
 
   useEffect(() => {
-    if (isSignedIn) {
-      fetchJobs();
+    if (!isSignedIn) {
+      navigate("/signin");
+      return;
     }
+    fetchJobs();
+    // eslint-disable-next-line
   }, [isSignedIn]);
 
   const handleFilterChange = (

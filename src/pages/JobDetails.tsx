@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react";
 
 interface Job {
   id: number;
@@ -20,14 +19,12 @@ interface Job {
 function JobDetails() {
   const { id } = useParams();
   const [job, setJob] = useState<Job | null>(null);
-  const { isSignedIn } = useUser();
+  const isSignedIn = Boolean(localStorage.getItem("token"));
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    axios
-      .get(`${BACKEND_URL}/api/jobs/${id}`)
-      .then((res) => setJob(res.data));
+    axios.get(`${BACKEND_URL}/api/jobs/${id}`).then((res) => setJob(res.data));
   }, [id]);
 
   const handleSave = async () => {

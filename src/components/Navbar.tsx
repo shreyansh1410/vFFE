@@ -1,10 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useClerk, useUser } from "@clerk/clerk-react";
 
 function Navbar() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
   const navigate = useNavigate();
+  const isSignedIn = Boolean(localStorage.getItem("token"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/signin");
+  };
 
   return (
     <nav className="bg-gray-900 shadow-lg">
@@ -17,7 +20,7 @@ function Navbar() {
             VisaFriendly Jobs
           </Link>
           <div className="flex items-center space-x-6">
-            {user ? (
+            {isSignedIn ? (
               <>
                 <Link
                   to="/profile"
@@ -26,7 +29,7 @@ function Navbar() {
                   Profile
                 </Link>
                 <button
-                  onClick={() => signOut(() => navigate("/"))}
+                  onClick={handleLogout}
                   className="text-gray-300 hover:text-white transition-colors font-medium"
                 >
                   Sign Out
