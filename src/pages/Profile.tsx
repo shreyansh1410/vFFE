@@ -1,28 +1,50 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react";
 
 interface JobData {
   savedJobs: { id: number; job_title: string }[];
   appliedJobs: { id: number; job_title: string }[];
+  name: string;
+  email: string;
 }
 
 function Profile() {
   const [jobData, setJobData] = useState<JobData | null>(null);
-  const { user: clerkUser } = useUser();
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    if (clerkUser) {
-      axios
-        .get(`${BACKEND_URL}/api/users/me`)
-        .then((res) => setJobData(res.data));
-    }
-  }, [clerkUser]);
+    const fetchJobData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/signin");
+        return;
+      }
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setJobData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch job data", error);
+        setJobData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobData();
+  }, [BACKEND_URL, navigate]);
 
-  if (!clerkUser || !jobData) return <div>Loading...</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!jobData) {
+    return <div>Failed to load profile.</div>;
+  }
 
   const savedJobs = jobData.savedJobs || [];
   const appliedJobs = jobData.appliedJobs || [];
@@ -30,8 +52,8 @@ function Profile() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold">Profile</h1>
-      <p>Name: {clerkUser.fullName}</p>
-      <p>Email: {clerkUser.primaryEmailAddress?.emailAddress}</p>
+      <p>Name: {jobData.name || "N/A"}</p>
+      <p>Email: {jobData.email || "N/A"}</p>
       <div className="mt-4">
         <h2 className="text-xl font-semibold">Saved Jobs</h2>
         {savedJobs.length === 0 ? (
