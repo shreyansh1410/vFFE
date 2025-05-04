@@ -29,7 +29,16 @@ function JobDetails() {
 
   const handleSave = async () => {
     try {
-      await axios.post(`${BACKEND_URL}/api/jobs/${id}/save`);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${BACKEND_URL}/api/jobs/${id}/save`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert("Job saved!");
     } catch (error) {
       alert("Failed to save job");
@@ -38,7 +47,16 @@ function JobDetails() {
 
   const handleApply = async () => {
     try {
-      await axios.post(`${BACKEND_URL}/api/jobs/${id}/apply`);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${BACKEND_URL}/api/jobs/${id}/apply`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert("Applied successfully!");
     } catch (error) {
       alert("Failed to apply");
