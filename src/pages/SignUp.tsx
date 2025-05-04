@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -66,6 +67,36 @@ const SignUp = () => {
           Sign Up
         </button>
       </form>
+      <div className="my-4 flex justify-center">
+        <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            if (credentialResponse.credential) {
+              try {
+                const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    credential: credentialResponse.credential,
+                  }),
+                });
+                const data = await res.json();
+                if (res.ok && data.token) {
+                  localStorage.setItem("token", data.token);
+                  navigate("/");
+                } else {
+                  setError(data.message || "Google sign up failed");
+                }
+              } catch (err) {
+                setError("Google sign up failed");
+              }
+            }
+          }}
+          onError={() => setError("Google sign up failed")}
+          width="100%"
+          theme="filled_blue"
+          text="signup_with"
+        />
+      </div>
       <div className="mt-4 text-center">
         Already have an account?{" "}
         <a href="/signin" className="text-blue-600">
