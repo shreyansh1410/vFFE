@@ -27,10 +27,16 @@ function Home() {
     h1Type: "",
     job_category: "",
   });
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
 
   const fetchJobs = async () => {
     try {
-      const query = new URLSearchParams(filters).toString();
+      const query = new URLSearchParams({
+        ...filters,
+        page: page.toString(),
+        limit: limit.toString(),
+      }).toString();
       const res = await axios.get(`${BACKEND_URL}/api/jobs?${query}`);
       const jobsData = Array.isArray(res.data) ? res.data : [];
       setJobs(jobsData);
@@ -46,8 +52,7 @@ function Home() {
       return;
     }
     fetchJobs();
-    // eslint-disable-next-line
-  }, [isSignedIn]);
+  }, [isSignedIn, page]);
 
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -58,6 +63,14 @@ function Home() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchJobs();
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (jobs.length === limit) setPage(page + 1);
   };
 
   if (!isSignedIn) {
@@ -188,6 +201,32 @@ function Home() {
                 </div>
               </div>
             ))}
+          </div>
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center mt-8 gap-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={page === 1}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                page === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
+              }`}
+            >
+              Previous
+            </button>
+            <span className="font-medium">Page {page}</span>
+            <button
+              onClick={handleNextPage}
+              disabled={jobs.length < limit}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                jobs.length < limit
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
+              }`}
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
