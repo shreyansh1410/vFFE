@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -52,13 +55,21 @@ const SignUp = () => {
           required
         />
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
           className="w-full p-2 border rounded"
           required
         />
+        <span
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="bg-red-500 relative bottom-11 w-1/2 left-92"
+        >
+          {showPassword ? <FaEyeSlash></FaEyeSlash> : <FaEye></FaEye>}
+        </span>
         {error && <div className="text-red-500 text-sm">{error}</div>}
         <button
           type="submit"
@@ -99,9 +110,9 @@ const SignUp = () => {
       </div>
       <div className="mt-4 text-center">
         Already have an account?{" "}
-        <a href="/signin" className="text-blue-600">
+        <Link to="/signin" className="text-blue-600">
           Sign In
-        </a>
+        </Link>
       </div>
     </div>
   );
